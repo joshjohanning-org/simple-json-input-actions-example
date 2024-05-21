@@ -61,6 +61,4 @@ jobs:
       run: |
         DATA="${{ needs.prepare.outputs.data }}"
         DATA=$(echo "$DATA" | jq -r .)
-        BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
-        DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
-        echo "Build color: $(echo $BUILD_PAYLOAD | jq -r '.color')"
+ 
