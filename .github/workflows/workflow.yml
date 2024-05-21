@@ -28,6 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: echo "${{ fromJson(needs.prepare.outputs.data) }}"
+      - run: echo "${{ fromJson(needs.prepare.outputs.data)[0] }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data) }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow) }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow).workflow }}"
