@@ -59,6 +59,7 @@ jobs:
     steps:
     - name: Parse JSON
       run: |
-        DATA="${{ needs.prepare.outputs.data }}"
+        DATA='${{ needs.prepare.outputs.data }}'
         DATA=$(echo "$DATA" | jq -r .)
+        echo "$DATA"
  
