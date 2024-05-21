@@ -72,6 +72,3 @@ jobs:
         echo "Deploy skip-int-tests: $(echo $DEPLOY_PAYLOAD | jq -r '.["skip-int-tests"]')"
         echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
         echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
-      env:
-        BUILD_PAYLOAD: ${{ fromJSON(needs.prepare.outputs.data)[0].workflow_payload }}
-        DEPLOY_PAYLOAD: ${{ fromJSON(needs.prepare.outputs.data)[1].workflow_payload }}
