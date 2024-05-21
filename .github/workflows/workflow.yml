@@ -1,0 +1,32 @@
+name: trigger-workflow-and-wait
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      data: ${{ steps.json.outputs.data }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build matrix
+        uses: actions/github-script@v7
+        id: json
+        with:
+          script: |
+            const fs = require('fs');
+            let data = fs.readFileSync('input.json', 'utf8');
+            core.setOutput('data', data);
+  build:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "${{ fromJson(needs.prepare.outputs.data) }}"
+      # - run: echo "${{ toJson(matrix.data.workflow_payload) }}"
+      #   continue-on-error: true
