@@ -4,7 +4,7 @@
         "workflow_payload": {
             "color": "blue",
             "number": "4",
-            "build-cmd": "docker build .",
+            "buildCmd": "docker build .",
             "ref": "main"
         }
     },
@@ -13,7 +13,7 @@
         "workflow_payload": {
             "color": "orange",
             "number": "7",
-            "skip-int-tests": false,
+            "skipIntTests": false,
             "pods": "5",
             "ref": "main"
         }

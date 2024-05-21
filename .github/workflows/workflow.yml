@@ -30,7 +30,7 @@ jobs:
       - run: | 
           echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.color }}"
           echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.number }}"
-          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.build-cmd }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.buildCmd }}"
           echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.ref }}"
 
       - uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
       - run: | 
           echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.color }}"
           echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.number }}"
-          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.skip-int-tests }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.skipIntTests }}"
           echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.pods }}"
           echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.ref }}"
 
@@ -65,10 +65,10 @@ jobs:
         DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
         echo "Build color: $(echo $BUILD_PAYLOAD | jq -r '.color')"
         echo "Build number: $(echo $BUILD_PAYLOAD | jq -r '.number')"
-        echo "Build cmd: $(echo $BUILD_PAYLOAD | jq -r '.["build-cmd"]')"
+        echo "Build cmd: $(echo $BUILD_PAYLOAD | jq -r '.buildCmd')"
         echo "Build ref: $(echo $BUILD_PAYLOAD | jq -r '.ref')"
         echo "Deploy color: $(echo $DEPLOY_PAYLOAD | jq -r '.color')"
         echo "Deploy number: $(echo $DEPLOY_PAYLOAD | jq -r '.number')"
-        echo "Deploy skip-int-tests: $(echo $DEPLOY_PAYLOAD | jq -r '.["skip-int-tests"]')"
+        echo "Deploy skipIntTests: $(echo $DEPLOY_PAYLOAD | jq -r '.skipIntTests')"
         echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
         echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
