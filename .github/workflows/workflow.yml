@@ -57,18 +57,49 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ prepare ]
     steps:
-    - name: Parse JSON
-      run: |
-        DATA='${{ needs.prepare.outputs.data }}'
-        DATA=$(echo "$DATA" | jq -r .)
-        BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
-        DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
-        echo "Build color: $(echo $BUILD_PAYLOAD | jq -r '.color')"
-        echo "Build number: $(echo $BUILD_PAYLOAD | jq -r '.number')"
-        echo "Build cmd: $(echo $BUILD_PAYLOAD | jq -r '.buildCmd')"
-        echo "Build ref: $(echo $BUILD_PAYLOAD | jq -r '.ref')"
-        echo "Deploy color: $(echo $DEPLOY_PAYLOAD | jq -r '.color')"
-        echo "Deploy number: $(echo $DEPLOY_PAYLOAD | jq -r '.number')"
-        echo "Deploy skipIntTests: $(echo $DEPLOY_PAYLOAD | jq -r '.skipIntTests')"
-        echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
-        echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
+      - name: Parse JSON
+        run: |
+          DATA='${{ needs.prepare.outputs.data }}'
+          DATA=$(echo "$DATA" | jq -r .)
+          BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
+          DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
+          echo "Build color: $(echo $BUILD_PAYLOAD | jq -r '.color')"
+          echo "Build number: $(echo $BUILD_PAYLOAD | jq -r '.number')"
+          echo "Build cmd: $(echo $BUILD_PAYLOAD | jq -r '.buildCmd')"
+          echo "Build ref: $(echo $BUILD_PAYLOAD | jq -r '.ref')"
+          echo "Deploy color: $(echo $DEPLOY_PAYLOAD | jq -r '.color')"
+          echo "Deploy number: $(echo $DEPLOY_PAYLOAD | jq -r '.number')"
+          echo "Deploy skipIntTests: $(echo $DEPLOY_PAYLOAD | jq -r '.skipIntTests')"
+          echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
+          echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
+
+      - name: set variable for each json object
+        run: |
+          DATA='${{ needs.prepare.outputs.data }}'
+          DATA=$(echo "$DATA" | jq -r .)
+          BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
+          DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
+
+          for key in $(echo $BUILD_PAYLOAD | jq -r 'keys[]'); do
+              value=$(echo $BUILD_PAYLOAD | jq -r --arg key $key '.[$key]')
+              echo "Setting environment variable: BUILD_$key"
+              echo "BUILD_$key=$value" >> $GITHUB_ENV
+          done
+
+          for key in $(echo $DEPLOY_PAYLOAD | jq -r 'keys[]'); do
+              value=$(echo $DEPLOY_PAYLOAD | jq -r --arg key $key '.[$key]')
+              echo "Setting environment variable: DEPLOY_$key"
+              echo "DEPLOY_$key=$value" >> $GITHUB_ENV
+          done
+
+      - name: print build environment variables
+        run: | 
+          printenv | grep BUILD_
+
+      - name: print build environment variables
+        run: | 
+          printenv | grep DEPlOY_
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BUILD_REF }}
