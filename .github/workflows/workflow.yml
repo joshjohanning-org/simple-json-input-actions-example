@@ -96,9 +96,9 @@ jobs:
         run: | 
           printenv | grep BUILD_
 
-      - name: print build environment variables
+      - name: print deploy environment variables
         run: | 
-          printenv | grep DEPlOY_
+          printenv | grep DEPLOY_
 
       - uses: actions/checkout@v4
         with:
