@@ -30,3 +30,4 @@ jobs:
       - run: echo "${{ fromJson(needs.prepare.outputs.data) }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data) }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow) }}"
+      - run: echo "${{ fromJson(needs.prepare.outputs.data[0]) }}"
