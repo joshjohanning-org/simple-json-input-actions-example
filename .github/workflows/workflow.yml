@@ -26,12 +26,52 @@ jobs:
     runs-on: ubuntu-latest
     needs: prepare
     steps:
+      - run: echo "${{ needs.prepare.outputs.data }}" # works for raw json, could use jq
+      - run: | 
+          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.color }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.number }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.build-cmd }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.ref }}"
+
       - uses: actions/checkout@v4
-      - run: echo "${{ needs.prepare.outputs.data }}"
-      - run: echo "${{ fromJson(needs.prepare.outputs.data) }}"
-      - run: echo "${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.color }}"
-      - run: echo "${{ toJson(needs.prepare.outputs.data) }}"
-      - run: echo "${{ toJson(needs.prepare.outputs.data.workflow) }}"
-      - run: echo "${{ toJson(needs.prepare.outputs.data.workflow).workflow }}"
-      - run: echo "${{ toJson(needs.prepare.outputs.data.workflow)[0] }}"
-      - run: echo "${{ toJson(needs.prepare.outputs.data) }}" | jq '.workflow'
+        with:
+          ref: ${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.ref }}
+
+      - uses: joshjohanning-org/composite-action@main
+        with:
+          who-to-greet: ${{ fromJson(needs.prepare.outputs.data)[0].workflow_payload.color }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [ prepare, build ]
+    steps:
+      - run: echo "${{ needs.prepare.outputs.data }}" # works for raw json, could use jq
+      - run: | 
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.color }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.number }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.skip-int-tests }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.pods }}"
+          echo "${{ fromJson(needs.prepare.outputs.data)[1].workflow_payload.ref }}"
+
+  jq:
+    runs-on: ubuntu-latest
+    needs: [ prepare ]
+    steps:
+    - name: Parse JSON
+      run: |
+        DATA="${{ needs.prepare.outputs.data }}"
+        DATA=$(echo "$DATA" | jq -r .)
+        BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
+        DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
+        echo "Build color: $(echo $BUILD_PAYLOAD | jq -r '.color')"
+        echo "Build number: $(echo $BUILD_PAYLOAD | jq -r '.number')"
+        echo "Build cmd: $(echo $BUILD_PAYLOAD | jq -r '.["build-cmd"]')"
+        echo "Build ref: $(echo $BUILD_PAYLOAD | jq -r '.ref')"
+        echo "Deploy color: $(echo $DEPLOY_PAYLOAD | jq -r '.color')"
+        echo "Deploy number: $(echo $DEPLOY_PAYLOAD | jq -r '.number')"
+        echo "Deploy skip-int-tests: $(echo $DEPLOY_PAYLOAD | jq -r '.["skip-int-tests"]')"
+        echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
+        echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
+      env:
+        BUILD_PAYLOAD: ${{ fromJSON(needs.prepare.outputs.data)[0].workflow_payload }}
+        DEPLOY_PAYLOAD: ${{ fromJSON(needs.prepare.outputs.data)[1].workflow_payload }}
