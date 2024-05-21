@@ -32,16 +32,4 @@ jobs:
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow) }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow).workflow }}"
       - run: echo "${{ toJson(needs.prepare.outputs.data.workflow)[0] }}"
-      - name: Use JSON data
-        run: |
-          DATA="${{ steps.json.outputs.data }}"
-          for row in $(echo "${DATA}" | jq -r '.[] | @base64'); do
-            _jq() {
-              echo ${row} | base64 --decode | jq -r ${1}
-            }
-            echo $(_jq '.workflow')
-            echo $(_jq '.workflow_payload.color')
-            echo $(_jq '.workflow_payload.number')
-            # and so on for other properties
-          done
-
+      - run: echo "${{ toJson(needs.prepare.outputs.data) }}" | jq '.workflow'
