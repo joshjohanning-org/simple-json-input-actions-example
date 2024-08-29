@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ prepare ]
     steps:
-      - name: Parse JSON
+      - name: Option 1 - Parse JSON manually
         run: |
           DATA='${{ needs.prepare.outputs.data }}'
           DATA=$(echo "$DATA" | jq -r .)
@@ -73,13 +73,14 @@ jobs:
           echo "Deploy pods: $(echo $DEPLOY_PAYLOAD | jq -r '.pods')"
           echo "Deploy ref: $(echo $DEPLOY_PAYLOAD | jq -r '.ref')"
 
-      - name: set variable for each json object
+      - name: Option 2 - programmatically create variable for each json object
         run: |
           DATA='${{ needs.prepare.outputs.data }}'
           DATA=$(echo "$DATA" | jq -r .)
           BUILD_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="build") | .workflow_payload')
           DEPLOY_PAYLOAD=$(echo "${DATA}" | jq -r '.[] | select(.workflow=="deploy") | .workflow_payload')
 
+          # I'm prefixing each key found here with "BUILD_" and "DEPLOY_", respectively, for easy reference when calling printenv
           for key in $(echo $BUILD_PAYLOAD | jq -r 'keys[]'); do
               value=$(echo $BUILD_PAYLOAD | jq -r --arg key $key '.[$key]')
               echo "Setting environment variable: BUILD_$key"
