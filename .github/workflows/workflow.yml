@@ -101,6 +101,8 @@ jobs:
         run: | 
           printenv | grep DEPLOY_
 
+      # using the BUILD_ vars downstream
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.BUILD_REF }}
+          fetch-depth: ${{ env.BUILD_NUMBER }}
